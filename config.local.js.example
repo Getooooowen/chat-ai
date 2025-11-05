@@ -1,0 +1,31 @@
+/**
+ * 本地配置文件示例
+ * 
+ * 使用说明：
+ * 1. 复制此文件并重命名为 config.local.js
+ * 2. 在 config.local.js 中填入你的 API 密钥数组
+ * 3. config.local.js 已被添加到 .gitignore，不会被提交到版本控制
+ */
+
+// 本地配置（仅在本地使用，不会被提交到版本控制）
+const LOCAL_CONFIG = {
+  // API密钥数组 - 每个模型对应的API密钥
+  // 如果所有模型使用同一个密钥，可以只设置第一个，其他会自动使用第一个
+  apiKeys: [
+    'your-api-key-here', // 模型0: Qwen2.5-72B
+    'your-api-key-here', // 模型1: Qwen2.5-32B
+    'your-api-key-here', // 模型2: Qwen2.5-14B
+    'your-api-key-here', // 模型3: Qwen2.5-7B
+    'your-api-key-here', // 模型4: DeepSeek-V2.5
+    'your-api-key-here', // 模型5: Llama-3.1-70B
+    'your-api-key-here', // 模型6: Yi-1.5-34B
+    'your-api-key-here', // 模型7: GLM-4-9B
+  ],
+  
+  // 兼容旧版本：单个API密钥（如果设置了apiKeys数组，此字段会被忽略）
+  // apiKey: 'your-api-key-here'
+}
+
+// 导出配置
+export default LOCAL_CONFIG
+

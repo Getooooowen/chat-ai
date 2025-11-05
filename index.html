@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI对话助手</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="alternate icon" href="favicon.ico" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+    <div class="chat-container">
+      <!-- Header -->
+      <header class="chat-header">
+        <div class="header-content">
+          <button id="menuToggle" class="menu-toggle" title="打开菜单">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <div class="logo-container">
+            <div class="robot-icon">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect x="5" y="4" width="14" height="14" rx="2" fill="#667eea" />
+                <circle cx="9" cy="9" r="1.5" fill="white" />
+                <circle cx="15" cy="9" r="1.5" fill="white" />
+                <path
+                  d="M9 13h6"
+                  stroke="white"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <h1>AI对话助手</h1>
+          </div>
+          <div class="header-actions">
+            <button id="themeToggle" class="theme-toggle" title="切换主题">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M12 2V4"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M12 20V22"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M4.93 4.93L6.34 6.34"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M17.66 17.66L19.07 19.07"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M2 12H4"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M20 12H22"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M6.34 17.66L4.93 19.07"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M19.07 4.93L17.66 6.34"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Sidebar Overlay (移动端遮罩层) -->
+      <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+      <!-- Body: Sidebar + Chat Main -->
+      <div class="chat-body">
+        <!-- Sidebar: Sessions List -->
+        <aside id="sidebar" class="sidebar">
+          <div class="sidebar-header">
+            对话列表
+            <button id="sidebarClose" class="sidebar-close" title="关闭">×</button>
+          </div>
+          <div class="sidebar-actions">
+            <button id="newSessionButton" class="new-session-button" title="新建对话">新建对话</button>
+            <button id="exportButton" class="header-button export-button" title="导出会话">导出</button>
+            <button id="importButton" class="header-button import-button" title="导入会话">导入</button>
+            <input type="file" id="importFileInput" accept="application/json" style="display:none" />
+          </div>
+          <ul id="sessionsList" class="sessions-list">
+            <!-- 会话项通过JavaScript动态渲染 -->
+          </ul>
+        </aside>
+
+        <!-- Chat Main -->
+        <div class="chat-main">
+          <!-- Welcome Section (仅在没有消息时显示) -->
+          <div id="welcomeSection" class="welcome-section">
+            <h2 class="welcome-title">Hi~ 我是AI助手</h2>
+            <p class="welcome-desc">你身边的智能助手，可以为你答疑解惑、尽情创作，快来点击以下任一功能体验吧~</p>
+            <!-- <div class="suggestions-divider"></div> -->
+            <p class="suggestions-title">你可以这样问</p>
+            <div class="suggestions-list" id="suggestionsList">
+              <!-- 建议问题将通过JavaScript动态添加 -->
+            </div>
+          </div>
+
+          <!-- Chat Messages -->
+          <div class="chat-messages" id="chatMessages">
+            <!-- 消息将通过JavaScript动态添加 -->
+          </div>
+
+          <!-- Input Area -->
+          <div class="input-area">
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="messageInput"
+                class="message-input"
+                placeholder="有问题,尽管问,shift+enter换行"
+              />
+              <div class="input-controls">
+                <div id="customModelSelect" class="custom-select" title="选择AI模型">
+                  <div class="select-trigger">
+                    <span class="select-text">请选择模型</span>
+                    <svg class="select-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="select-dropdown">
+                    <div class="select-options"></div>
+                  </div>
+                </div>
+                <!-- 隐藏的原生select，用于兼容 -->
+                <select id="modelSelect" class="model-select" style="display: none;" aria-hidden="true">
+                  <!-- 模型选项将通过JavaScript动态添加 -->
+                </select>
+                <button id="clearButton" class="input-action-btn" title="清除当前对话">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </button>
+                <button id="sendButton" class="send-button" title="发送">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="input-footer">
+              <span class="footer-text">内容由AI生成,仅供参考</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js" type="module"></script>
+  </body>
+</html>
