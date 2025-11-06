@@ -832,6 +832,42 @@ messageInput.addEventListener('keydown', e => {
   // Shift+Enter 允许换行（不阻止默认行为）
 })
 
+// 移动端：input失焦时确保header可见
+if (messageInput) {
+  messageInput.addEventListener('blur', () => {
+    // 延迟执行，确保浏览器完成滚动后再执行
+    setTimeout(() => {
+      // 检查是否是移动端
+      if (window.innerWidth <= 768) {
+        const chatHeader = document.querySelector('.chat-header')
+        const chatContainer = document.querySelector('.chat-container')
+        
+        if (chatHeader && chatContainer) {
+          // 获取header的位置
+          const headerRect = chatHeader.getBoundingClientRect()
+          
+          // 如果header不在视口顶部，则滚动到顶部
+          if (headerRect.top < 0 || headerRect.top > 0) {
+            // 滚动整个页面到顶部
+            window.scrollTo({
+              top: 0,
+              behavior: 'smooth'
+            })
+            
+            // 如果chat-container是可滚动的，也滚动它到顶部
+            if (chatContainer.scrollTop > 0) {
+              chatContainer.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+              })
+            }
+          }
+        }
+      }
+    }, 150) // 增加延迟时间，确保浏览器完成滚动后再执行
+  })
+}
+
 // 初始化模型选择器
 function initModelSelect () {
   if (!customModelSelect || !modelSelect) return

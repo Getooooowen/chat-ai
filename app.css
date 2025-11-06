@@ -30,7 +30,10 @@
 @media (max-width: 768px) {
   .chat-header {
     position: sticky;
+    top: 0;
     z-index: 1; /* 大幅降低z-index，确保侧边栏可以覆盖它 */
+    /* 确保header始终可见 */
+    will-change: transform;
   }
   
   /* 当侧边栏打开时，隐藏主内容的header */
@@ -39,6 +42,11 @@
     visibility: hidden;
     opacity: 0;
     pointer-events: none;
+  }
+  
+  /* 防止input聚焦时header被滚动出视野 */
+  .chat-container {
+    scroll-behavior: smooth;
   }
 }
 body.dark-theme .chat-header {
