@@ -30,7 +30,15 @@
 @media (max-width: 768px) {
   .chat-header {
     position: sticky;
-    z-index: 101;
+    z-index: 1; /* 大幅降低z-index，确保侧边栏可以覆盖它 */
+  }
+  
+  /* 当侧边栏打开时，隐藏主内容的header */
+  body.sidebar-open .chat-header,
+  .chat-container.sidebar-open .chat-header {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
   }
 }
 body.dark-theme .chat-header {
@@ -97,12 +105,16 @@ body.dark-theme .model-tag {
     left: 0;
     top: 0;
     height: 100vh;
+    height: 100dvh; /* 使用动态视口高度 */
     width: 280px;
-    z-index: 1001;
+    z-index: 1002; /* 确保高于header的z-index */
     transform: translateX(-100%);
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     pointer-events: auto;
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden; /* 防止内容溢出 */
+    display: flex;
+    flex-direction: column;
   }
   
   .sidebar.show {
@@ -113,11 +125,12 @@ body.dark-theme .model-tag {
   .sidebar-overlay {
     position: fixed;
     top: 0;
-    left: 280px;
-    width: calc(100% - 280px);
-    height: 100%;
+    left: 280px; /* 从侧边栏右侧开始 */
+    width: calc(100% - 280px); /* 只覆盖主内容区域 */
+    height: 100vh;
+    height: 100dvh; /* 使用动态视口高度 */
     background: rgba(0, 0, 0, 0.5);
-    z-index: 998;
+    z-index: 1001; /* 高于内容但低于侧边栏 */
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -137,6 +150,10 @@ body.dark-theme .model-tag {
   color: #666666;
   border-bottom: 1px solid #e0e0e0;
   position: relative;
+  overflow: hidden; /* 防止文字溢出 */
+  white-space: nowrap; /* 防止换行 */
+  text-overflow: ellipsis; /* 超出部分显示省略号 */
+  flex-shrink: 0; /* 防止被压缩 */
 }
 
 /* PC模式下隐藏关闭按钮 */
@@ -170,6 +187,7 @@ body.dark-theme .model-tag {
 }
 
 .sessions-list::-webkit-scrollbar {
+  display: none;
   width: 6px;
 }
 .sessions-list::-webkit-scrollbar-thumb {
@@ -491,6 +509,7 @@ body.dark-theme .message-content .retry-button:hover {
 .bot-message .message-time { text-align: left; }
 
 /* 主区滚动条优化 */
+.chat-messages::-webkit-scrollbar { display: none; }
 .chat-messages::-webkit-scrollbar-thumb { background: #cfcfcf; }
 
 .input-area {
@@ -693,5 +712,20 @@ body.dark-theme .menu-toggle:hover {
   
   body.dark-theme .sidebar-close {
     color: #aaaaaa;
+  }
+  
+  /* 移动端：...图标始终显示（因为移动端没有hover效果） */
+  .session-item:not(.pinned) .session-actions {
+    opacity: 1 !important; /* 未置顶的会话，...图标始终显示 */
+  }
+  
+  /* 移动端：已置顶的会话，...图标和图钉图标都显示 */
+  .session-item.pinned .session-pin-icon {
+    display: flex !important;
+    opacity: 1 !important;
+  }
+  .session-item.pinned .action-btn-more {
+    display: flex !important;
+    opacity: 1 !important;
   }
 }

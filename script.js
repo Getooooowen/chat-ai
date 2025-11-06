@@ -301,6 +301,7 @@ function closeSidebarIfMobile () {
   if (window.innerWidth <= 768) {
     if (sidebar) sidebar.classList.remove('show')
     if (sidebarOverlay) sidebarOverlay.classList.remove('show')
+    document.body.classList.remove('sidebar-open')
     document.body.style.overflow = ''
   }
 }
@@ -486,8 +487,8 @@ function loadConversationHistory () {
           activeSessionId = migrated.id
           localStorage.removeItem(APP_CONFIG.storageKeys.conversationHistory)
           persistSessions()
-        }
-      } catch (e) {
+            }
+          } catch (e) {
         console.warn('旧历史迁移失败:', e)
       }
     }
@@ -696,8 +697,8 @@ function sendMessage (messageText, isUser = true) {
       currentModelIndex
     )
       .then(({ content: fullContent, history: updatedHistory }) => {
-        // 更新对话历史
-        conversationHistory = updatedHistory
+      // 更新对话历史
+      conversationHistory = updatedHistory
         // 写回当前会话
         const session = sessions.find(s => s.id === activeSessionId)
         if (session) {
@@ -712,21 +713,21 @@ function sendMessage (messageText, isUser = true) {
           renderSessionList()
         }
 
-        // 流式输出完成，移除流式光标和临时ID，重新渲染完整内容
-        messageTextDiv.classList.remove('streaming')
-        messageTextDiv.innerHTML = markdownToHtml(fullContent)
-        aiMessageDiv.removeAttribute('id')
+      // 流式输出完成，移除流式光标和临时ID，重新渲染完整内容
+      messageTextDiv.classList.remove('streaming')
+      messageTextDiv.innerHTML = markdownToHtml(fullContent)
+      aiMessageDiv.removeAttribute('id')
 
         // 为AI回复添加复制与重试按钮（包括被停止的情况）
-        if (fullContent) {
-          const copyBtn = document.createElement('button')
-          copyBtn.className = 'copy-button'
-          copyBtn.innerHTML = '📋'
-          copyBtn.title = '复制'
-          copyBtn.addEventListener('click', () => {
-            copyToClipboard(fullContent)
-          })
-          messageContent.appendChild(copyBtn)
+      if (fullContent) {
+        const copyBtn = document.createElement('button')
+        copyBtn.className = 'copy-button'
+        copyBtn.innerHTML = '📋'
+        copyBtn.title = '复制'
+        copyBtn.addEventListener('click', () => {
+          copyToClipboard(fullContent)
+        })
+        messageContent.appendChild(copyBtn)
 
           const retryBtn = document.createElement('button')
           retryBtn.className = 'retry-button'
@@ -743,62 +744,62 @@ function sendMessage (messageText, isUser = true) {
         // 保存会话列表
         persistSessions()
 
-        // 检查是否被手动停止
-        if (wasManuallyStopped && fullContent) {
-          // 显示停止信息和重新编辑按钮
-          const stopInfoDiv = document.createElement('div')
-          stopInfoDiv.className = 'message bot-message stop-info'
-          const stopTime = formatTime()
+      // 检查是否被手动停止
+      if (wasManuallyStopped && fullContent) {
+        // 显示停止信息和重新编辑按钮
+        const stopInfoDiv = document.createElement('div')
+        stopInfoDiv.className = 'message bot-message stop-info'
+        const stopTime = formatTime()
 
-          // 使用createElement代替innerHTML防止XSS
-          const messageContent = document.createElement('div')
-          messageContent.className = 'message-content'
+        // 使用createElement代替innerHTML防止XSS
+        const messageContent = document.createElement('div')
+        messageContent.className = 'message-content'
 
-          const textDiv = document.createElement('div')
-          textDiv.className = 'message-text'
+        const textDiv = document.createElement('div')
+        textDiv.className = 'message-text'
 
-          const span = document.createElement('span')
-          span.textContent = '你停止生成了本次回答'
+        const span = document.createElement('span')
+        span.textContent = '你停止生成了本次回答'
 
-          const reEditBtn = document.createElement('button')
-          reEditBtn.className = 're-edit-button'
-          reEditBtn.textContent = '重新编辑问题'
-          reEditBtn.addEventListener('click', () => {
-            messageInput.value = lastUserMessage
-            messageInput.focus()
-            stopInfoDiv.remove()
-          })
+        const reEditBtn = document.createElement('button')
+        reEditBtn.className = 're-edit-button'
+        reEditBtn.textContent = '重新编辑问题'
+        reEditBtn.addEventListener('click', () => {
+          messageInput.value = lastUserMessage
+          messageInput.focus()
+          stopInfoDiv.remove()
+        })
 
-          textDiv.appendChild(span)
-          textDiv.appendChild(reEditBtn)
-          messageContent.appendChild(textDiv)
+        textDiv.appendChild(span)
+        textDiv.appendChild(reEditBtn)
+        messageContent.appendChild(textDiv)
 
-          const timeDiv = document.createElement('div')
-          timeDiv.className = 'message-time'
-          timeDiv.textContent = stopTime
+        const timeDiv = document.createElement('div')
+        timeDiv.className = 'message-time'
+        timeDiv.textContent = stopTime
 
-          stopInfoDiv.appendChild(messageContent)
-          stopInfoDiv.appendChild(timeDiv)
-          chatMessages.appendChild(stopInfoDiv)
-          chatMessages.scrollTop = chatMessages.scrollHeight
-        }
+        stopInfoDiv.appendChild(messageContent)
+        stopInfoDiv.appendChild(timeDiv)
+        chatMessages.appendChild(stopInfoDiv)
+        chatMessages.scrollTop = chatMessages.scrollHeight
+      }
 
-        // 恢复按钮样式
-        sendButton.textContent = '发送'
-        sendButton.classList.remove('stop-button')
-        isStreaming = false
+      // 恢复按钮样式
+      sendButton.textContent = '发送'
+      sendButton.classList.remove('stop-button')
+      isStreaming = false
       })
       .catch(error => {
-        // 发生错误，移除流式光标和流式消息并显示错误
-        messageTextDiv.classList.remove('streaming')
-        aiMessageDiv.remove()
-        sendMessage(`抱歉，出现了错误：${error.message}`, false)
+      // 发生错误，移除流式光标和流式消息并显示错误
+      messageTextDiv.classList.remove('streaming')
+      aiMessageDiv.remove()
+      sendMessage(`抱歉，出现了错误：${error.message}`, false)
 
-        // 恢复按钮样式
-        sendButton.textContent = '发送'
-        sendButton.classList.remove('stop-button')
-        isStreaming = false
-      })
+      // 恢复按钮样式
+      sendButton.textContent = '发送'
+      sendButton.classList.remove('stop-button')
+      isStreaming = false
+    })
   }
 }
 
@@ -1028,6 +1029,7 @@ document.addEventListener('DOMContentLoaded', () => {
     menuToggle.addEventListener('click', () => {
       if (sidebar) sidebar.classList.add('show')
       if (sidebarOverlay) sidebarOverlay.classList.add('show')
+      document.body.classList.add('sidebar-open')
       document.body.style.overflow = 'hidden'
     })
   }
@@ -1035,6 +1037,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarClose.addEventListener('click', () => {
       if (sidebar) sidebar.classList.remove('show')
       if (sidebarOverlay) sidebarOverlay.classList.remove('show')
+      document.body.classList.remove('sidebar-open')
       document.body.style.overflow = ''
     })
   }
@@ -1043,6 +1046,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // 确保点击遮罩层时关闭侧边栏
       if (sidebar) sidebar.classList.remove('show')
       if (sidebarOverlay) sidebarOverlay.classList.remove('show')
+      document.body.classList.remove('sidebar-open')
       document.body.style.overflow = ''
     })
   }

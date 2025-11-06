@@ -68,6 +68,9 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 1;
+  min-width: 0; /* 允许flex item缩小 */
+  overflow: hidden; /* 防止内容溢出 */
 }
 
 .header-actions {
@@ -111,6 +114,20 @@ body {
 @media (max-width: 768px) {
   .chat-header h1 {
     font-size: 16px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+  
+  .logo-container {
+    overflow: hidden;
+    min-width: 0;
+  }
+  
+  .header-content {
+    overflow: hidden;
     min-width: 0;
   }
 }
@@ -193,8 +210,19 @@ body {
   padding: 8px 4px 12px 4px;
 }
 
+/* 隐藏所有滚动条 */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 /* 自定义滚动条样式 */
 .select-options::-webkit-scrollbar {
+  display: none;
   width: 8px;
 }
 
@@ -334,6 +362,7 @@ body {
 
 /* 自定义滚动条样式（适用于下拉列表） */
 .model-select::-webkit-scrollbar {
+  display: none;
   width: 8px;
 }
 
@@ -777,6 +806,7 @@ body.dark-theme .toast {
 }
 
 .chat-messages::-webkit-scrollbar {
+  display: none;
   width: 6px;
 }
 
