@@ -207,7 +207,7 @@ body {
   max-height: min(300px, calc(100vh - 200px));
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 8px 4px 12px 4px;
+  padding: 8px 4px 16px 4px; /* 增加底部padding，确保最后一个选项完全可见 */
 }
 
 /* 隐藏所有滚动条 */
@@ -323,7 +323,13 @@ body {
   }
 
   .select-dropdown {
-    max-height: 250px;
+    max-height: min(400px, calc(100vh - 250px));
+    z-index: 10001; /* 确保在移动端显示在最上层 */
+  }
+
+  .select-options {
+    max-height: min(400px, calc(100vh - 250px));
+    padding: 8px 4px 20px 4px; /* 增加底部padding，确保最后一个选项完全可见 */
   }
 
   .select-option {
