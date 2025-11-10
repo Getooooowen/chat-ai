@@ -57,7 +57,7 @@ export function createMessageElement (messageText, isUser = true) {
     const shareBtn = document.createElement('button')
     shareBtn.className = 'action-btn share-button'
     shareBtn.innerHTML = '🔗'
-    shareBtn.title = '分享'
+    shareBtn.title = '生成图片'
     shareBtn.addEventListener('click', e => {
       e.stopPropagation()
       // TODO: 实现分享功能
@@ -172,7 +172,7 @@ export function createMessageElement (messageText, isUser = true) {
     const shareBtn = document.createElement('button')
     shareBtn.className = 'action-btn share-button'
     shareBtn.innerHTML = '🔗'
-    shareBtn.title = '分享'
+    shareBtn.title = '生成图片'
     shareBtn.addEventListener('click', e => {
       e.stopPropagation()
       // TODO: 实现分享功能

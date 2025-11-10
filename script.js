@@ -194,7 +194,7 @@ function renderSessionList () {
     // 标题和模型名容器
     const titleMetaContainer = document.createElement('div')
     titleMetaContainer.className = 'session-title-meta-container'
-    
+
     const title = document.createElement('div')
     title.className = 'session-title'
     title.textContent = s.title || '新的对话'
@@ -203,7 +203,7 @@ function renderSessionList () {
     meta.className = 'session-meta'
     const modelName = MODEL_LIST[s.modelIndex]?.name || '未知模型'
     meta.textContent = `${modelName}`
-    
+
     titleMetaContainer.appendChild(title)
     titleMetaContainer.appendChild(meta)
 
@@ -295,9 +295,12 @@ function renderSessionList () {
 
     li.appendChild(titleMetaContainer)
     li.appendChild(actions)
-    li.addEventListener('click', (e) => {
+    li.addEventListener('click', e => {
       // 如果点击的是操作按钮或下拉菜单，不切换会话
-      if (e.target.closest('.session-actions') || e.target.closest('.session-dropdown')) {
+      if (
+        e.target.closest('.session-actions') ||
+        e.target.closest('.session-dropdown')
+      ) {
         return
       }
       setActiveSession(s.id)
@@ -369,7 +372,7 @@ function renderActiveSessionMessages () {
     const isUser = msg.role === 'user'
     const msgDiv = createMessageElement(msg.content, isUser)
     chatMessages.appendChild(msgDiv)
-    
+
     // 绑定按钮功能
     bindMessageActions(msgDiv, activeSessionId, i, msg.content)
   }
@@ -507,8 +510,8 @@ function loadConversationHistory () {
           activeSessionId = migrated.id
           localStorage.removeItem(APP_CONFIG.storageKeys.conversationHistory)
           persistSessions()
-            }
-          } catch (e) {
+        }
+      } catch (e) {
         console.warn('旧历史迁移失败:', e)
       }
     }
@@ -558,7 +561,7 @@ function sendMessage (messageText, isUser = true) {
 
   // 添加到聊天区域
   chatMessages.appendChild(messageDiv)
-  
+
   // 如果是用户消息，绑定按钮功能
   if (isUser && activeSessionId) {
     const currentSession = sessions.find(s => s.id === activeSessionId)
@@ -599,7 +602,7 @@ function sendMessage (messageText, isUser = true) {
     const messageContent = aiMessageDiv.querySelector('.message-content')
     const textDiv = aiMessageDiv.querySelector('.message-text')
     textDiv.classList.add('markdown-content')
-    
+
     // // 更新时间显示
     // const timeDiv = aiMessageDiv.querySelector('.message-time')
     // if (timeDiv) {
@@ -708,8 +711,8 @@ function sendMessage (messageText, isUser = true) {
       currentModelIndex
     )
       .then(({ content: fullContent, history: updatedHistory }) => {
-      // 更新对话历史
-      conversationHistory = updatedHistory
+        // 更新对话历史
+        conversationHistory = updatedHistory
         // 写回当前会话
         const session = sessions.find(s => s.id === activeSessionId)
         if (session) {
@@ -724,92 +727,106 @@ function sendMessage (messageText, isUser = true) {
           renderSessionList()
         }
 
-      // 流式输出完成，移除流式光标和临时ID，重新渲染完整内容
-      messageTextDiv.classList.remove('streaming')
-      messageTextDiv.innerHTML = markdownToHtml(fullContent)
-      aiMessageDiv.removeAttribute('id')
+        // 流式输出完成，移除流式光标和临时ID，重新渲染完整内容
+        messageTextDiv.classList.remove('streaming')
+        messageTextDiv.innerHTML = markdownToHtml(fullContent)
+        aiMessageDiv.removeAttribute('id')
 
         // 按钮已在messageHandler.js中创建，这里需要绑定功能
-      if (fullContent) {
-        // 绑定所有按钮功能（包括重新生成、收藏、分享等）
-        const activeSession = sessions.find(s => s.id === activeSessionId)
-        if (activeSession) {
-          const messageIndex = activeSession.messages.length - 1
-          bindMessageActions(aiMessageDiv, activeSessionId, messageIndex, fullContent)
-        }
-        
-        // 绑定用户消息的分享按钮功能
-        const userMessageDiv = aiMessageDiv.previousElementSibling
-        if (userMessageDiv && userMessageDiv.classList.contains('user-message') && lastUserMessage) {
+        if (fullContent) {
+          // 绑定所有按钮功能（包括重新生成、收藏、分享等）
           const activeSession = sessions.find(s => s.id === activeSessionId)
           if (activeSession) {
-            const userMessageIndex = activeSession.messages.length - 2
-            if (userMessageIndex >= 0) {
-              bindMessageActions(userMessageDiv, activeSessionId, userMessageIndex, lastUserMessage)
+            const messageIndex = activeSession.messages.length - 1
+            bindMessageActions(
+              aiMessageDiv,
+              activeSessionId,
+              messageIndex,
+              fullContent
+            )
+          }
+
+          // 绑定用户消息的分享按钮功能
+          const userMessageDiv = aiMessageDiv.previousElementSibling
+          if (
+            userMessageDiv &&
+            userMessageDiv.classList.contains('user-message') &&
+            lastUserMessage
+          ) {
+            const activeSession = sessions.find(s => s.id === activeSessionId)
+            if (activeSession) {
+              const userMessageIndex = activeSession.messages.length - 2
+              if (userMessageIndex >= 0) {
+                bindMessageActions(
+                  userMessageDiv,
+                  activeSessionId,
+                  userMessageIndex,
+                  lastUserMessage
+                )
+              }
             }
           }
         }
-      }
 
         // 保存会话列表
         persistSessions()
 
-      // 检查是否被手动停止
-      if (wasManuallyStopped && fullContent) {
-        // 显示停止信息和重新编辑按钮
-        const stopInfoDiv = document.createElement('div')
-        stopInfoDiv.className = 'message bot-message stop-info'
-        const stopTime = formatTime()
+        // 检查是否被手动停止
+        if (wasManuallyStopped && fullContent) {
+          // 显示停止信息和重新编辑按钮
+          const stopInfoDiv = document.createElement('div')
+          stopInfoDiv.className = 'message bot-message stop-info'
+          const stopTime = formatTime()
 
-        // 使用createElement代替innerHTML防止XSS
-        const messageContent = document.createElement('div')
-        messageContent.className = 'message-content'
+          // 使用createElement代替innerHTML防止XSS
+          const messageContent = document.createElement('div')
+          messageContent.className = 'message-content'
 
-        const textDiv = document.createElement('div')
-        textDiv.className = 'message-text'
+          const textDiv = document.createElement('div')
+          textDiv.className = 'message-text'
 
-        const span = document.createElement('span')
-        span.textContent = '你停止生成了本次回答'
+          const span = document.createElement('span')
+          span.textContent = '你停止生成了本次回答'
 
-        const reEditBtn = document.createElement('button')
-        reEditBtn.className = 're-edit-button'
-        reEditBtn.textContent = '重新编辑问题'
-        reEditBtn.addEventListener('click', () => {
-          messageInput.value = lastUserMessage
-          messageInput.focus()
-          stopInfoDiv.remove()
-        })
+          const reEditBtn = document.createElement('button')
+          reEditBtn.className = 're-edit-button'
+          reEditBtn.textContent = '重新编辑问题'
+          reEditBtn.addEventListener('click', () => {
+            messageInput.value = lastUserMessage
+            messageInput.focus()
+            stopInfoDiv.remove()
+          })
 
-        textDiv.appendChild(span)
-        textDiv.appendChild(reEditBtn)
-        messageContent.appendChild(textDiv)
+          textDiv.appendChild(span)
+          textDiv.appendChild(reEditBtn)
+          messageContent.appendChild(textDiv)
 
-        // const timeDiv = document.createElement('div')
-        // timeDiv.className = 'message-time'
-        // timeDiv.textContent = stopTime
+          // const timeDiv = document.createElement('div')
+          // timeDiv.className = 'message-time'
+          // timeDiv.textContent = stopTime
 
-        stopInfoDiv.appendChild(messageContent)
-        // stopInfoDiv.appendChild(timeDiv)
-        chatMessages.appendChild(stopInfoDiv)
-        chatMessages.scrollTop = chatMessages.scrollHeight
-      }
+          stopInfoDiv.appendChild(messageContent)
+          // stopInfoDiv.appendChild(timeDiv)
+          chatMessages.appendChild(stopInfoDiv)
+          chatMessages.scrollTop = chatMessages.scrollHeight
+        }
 
-      // 恢复按钮样式
-      sendButton.textContent = '发送'
-      sendButton.classList.remove('stop-button')
-      isStreaming = false
+        // 恢复按钮样式
+        sendButton.textContent = '发送'
+        sendButton.classList.remove('stop-button')
+        isStreaming = false
       })
       .catch(error => {
-      // 发生错误，移除流式光标和流式消息并显示错误
-      messageTextDiv.classList.remove('streaming')
-      aiMessageDiv.remove()
-      sendMessage(`抱歉，出现了错误：${error.message}`, false)
+        // 发生错误，移除流式光标和流式消息并显示错误
+        messageTextDiv.classList.remove('streaming')
+        aiMessageDiv.remove()
+        sendMessage(`抱歉，出现了错误：${error.message}`, false)
 
-      // 恢复按钮样式
-      sendButton.textContent = '发送'
-      sendButton.classList.remove('stop-button')
-      isStreaming = false
-    })
+        // 恢复按钮样式
+        sendButton.textContent = '发送'
+        sendButton.classList.remove('stop-button')
+        isStreaming = false
+      })
   }
 }
 
@@ -851,11 +868,11 @@ if (messageInput) {
       if (window.innerWidth <= 768) {
         const chatHeader = document.querySelector('.chat-header')
         const chatContainer = document.querySelector('.chat-container')
-        
+
         if (chatHeader && chatContainer) {
           // 获取header的位置
           const headerRect = chatHeader.getBoundingClientRect()
-          
+
           // 如果header不在视口顶部，则滚动到顶部
           if (headerRect.top < 0 || headerRect.top > 0) {
             // 滚动整个页面到顶部
@@ -863,7 +880,7 @@ if (messageInput) {
               top: 0,
               behavior: 'smooth'
             })
-            
+
             // 如果chat-container是可滚动的，也滚动它到顶部
             if (chatContainer.scrollTop > 0) {
               chatContainer.scrollTo({
@@ -1063,7 +1080,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 初始化欢迎区域显示状态
   updateWelcomeSectionVisibility()
-  
+
   // 初始化新功能（收藏、分享等）
   initNewFeatures()
 
@@ -1091,7 +1108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
   if (sidebarOverlay) {
-    sidebarOverlay.addEventListener('click', (e) => {
+    sidebarOverlay.addEventListener('click', e => {
       // 确保点击遮罩层时关闭侧边栏
       if (sidebar) sidebar.classList.remove('show')
       if (sidebarOverlay) sidebarOverlay.classList.remove('show')
@@ -1099,10 +1116,10 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.style.overflow = ''
     })
   }
-  
+
   // 确保侧边栏内的点击事件不会冒泡到遮罩层
   if (sidebar) {
-    sidebar.addEventListener('click', (e) => {
+    sidebar.addEventListener('click', e => {
       e.stopPropagation()
     })
   }
@@ -1387,18 +1404,20 @@ function validateImportedData (data) {
  */
 function bindMessageActions (messageDiv, sessionId, messageIndex, content) {
   if (!messageDiv) return
-  
+
   const isUser = messageDiv.classList.contains('user-message')
-  
+
   if (isUser) {
     // 用户消息：绑定分享按钮
     const shareBtn = messageDiv.querySelector('.share-button')
     if (shareBtn) {
       const newShareBtn = shareBtn.cloneNode(true)
       shareBtn.parentNode.replaceChild(newShareBtn, shareBtn)
-      newShareBtn.addEventListener('click', (e) => {
+      newShareBtn.addEventListener('click', e => {
         e.stopPropagation()
-        showShareModal(content, 'message')
+        // showShareModal(content, 'message')
+        // 分享为图片（使用canvas生成）
+        shareAsImage(content)
       })
     }
   } else {
@@ -1407,16 +1426,18 @@ function bindMessageActions (messageDiv, sessionId, messageIndex, content) {
     if (favoriteBtn && sessionId) {
       const newFavoriteBtn = favoriteBtn.cloneNode(true)
       favoriteBtn.parentNode.replaceChild(newFavoriteBtn, favoriteBtn)
-      
+
       // 检查是否已收藏
       if (isFavorite(sessionId, messageIndex)) {
         newFavoriteBtn.classList.add('favorited')
       }
-      
-      newFavoriteBtn.addEventListener('click', (e) => {
+
+      newFavoriteBtn.addEventListener('click', e => {
         e.stopPropagation()
         if (isFavorite(sessionId, messageIndex)) {
-          const favorite = favorites.find(f => f.sessionId === sessionId && f.messageIndex === messageIndex)
+          const favorite = favorites.find(
+            f => f.sessionId === sessionId && f.messageIndex === messageIndex
+          )
           if (favorite) {
             removeFavorite(favorite.id)
             newFavoriteBtn.classList.remove('favorited')
@@ -1429,33 +1450,33 @@ function bindMessageActions (messageDiv, sessionId, messageIndex, content) {
         }
       })
     }
-    
+
     // AI消息：绑定分享按钮
     const shareBtn = messageDiv.querySelector('.share-button')
     if (shareBtn) {
       const newShareBtn = shareBtn.cloneNode(true)
       shareBtn.parentNode.replaceChild(newShareBtn, shareBtn)
-      newShareBtn.addEventListener('click', (e) => {
+      newShareBtn.addEventListener('click', e => {
         e.stopPropagation()
-        showShareModal(content, 'message')
+        shareAsImage(content)
       })
     }
-    
+
     // AI消息：绑定重新生成按钮
     const regenerateBtn = messageDiv.querySelector('.regenerate-button')
     if (regenerateBtn && sessionId) {
       const newRegenerateBtn = regenerateBtn.cloneNode(true)
       regenerateBtn.parentNode.replaceChild(newRegenerateBtn, regenerateBtn)
-      
+
       // 找到对应的用户消息（AI消息的前一条应该是用户消息）
       const session = sessions.find(s => s.id === sessionId)
       if (session && messageIndex > 0) {
         // messageIndex是AI消息的索引，前一条应该是用户消息
         const userMessageIndex = messageIndex - 1
         const userMessage = session.messages[userMessageIndex]
-        
+
         if (userMessage && userMessage.role === 'user') {
-          newRegenerateBtn.addEventListener('click', (e) => {
+          newRegenerateBtn.addEventListener('click', e => {
             e.stopPropagation()
             // 重新发送对应的用户消息
             if (userMessage.content && userMessage.content.trim()) {
@@ -1513,7 +1534,7 @@ function addFavorite (sessionId, messageIndex, content) {
     timestamp: formatTime(),
     createdAt: Date.now()
   }
-  
+
   favorites.push(favorite)
   saveFavorites()
   renderFavoritesList()
@@ -1537,7 +1558,9 @@ function removeFavorite (favoriteId) {
  * 返回：boolean
  */
 function isFavorite (sessionId, messageIndex) {
-  return favorites.some(f => f.sessionId === sessionId && f.messageIndex === messageIndex)
+  return favorites.some(
+    f => f.sessionId === sessionId && f.messageIndex === messageIndex
+  )
 }
 
 /**
@@ -1545,53 +1568,57 @@ function isFavorite (sessionId, messageIndex) {
  */
 function renderFavoritesList () {
   if (!favoritesList) return
-  
+
   favoritesList.innerHTML = ''
-  
+
   if (favorites.length === 0) {
-    favoritesList.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">暂无收藏</div>'
+    favoritesList.innerHTML =
+      '<div style="padding: 20px; text-align: center; color: #999;">暂无收藏</div>'
     return
   }
-  
+
   favorites.reverse().forEach(favorite => {
     const item = document.createElement('li')
     item.className = 'favorite-item'
-    
+
     const content = document.createElement('div')
     content.className = 'favorite-content'
     content.textContent = favorite.content
-    
+
     const meta = document.createElement('div')
     meta.className = 'favorite-meta'
     meta.innerHTML = `
       <span>${favorite.timestamp}</span>
       <span>${getSessionTitle(favorite.sessionId)}</span>
     `
-    
+
     const removeBtn = document.createElement('button')
     removeBtn.className = 'favorite-remove'
     removeBtn.innerHTML = '×'
     removeBtn.title = '取消收藏'
-    removeBtn.addEventListener('click', (e) => {
+    removeBtn.addEventListener('click', e => {
       e.stopPropagation()
       removeFavorite(favorite.id)
     })
-    
+
     item.appendChild(content)
     item.appendChild(meta)
     item.appendChild(removeBtn)
-    
+
     item.addEventListener('click', () => {
       setActiveSession(favorite.sessionId)
       setTimeout(() => {
         const messages = chatMessages.querySelectorAll('.message')
         if (messages[favorite.messageIndex]) {
-          messages[favorite.messageIndex].scrollIntoView({ behavior: 'smooth', block: 'center' })
+          messages[favorite.messageIndex].scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          })
         }
       }, 100)
       closeSidebarIfMobile()
     })
-    
+
     favoritesList.appendChild(item)
   })
 }
@@ -1614,9 +1641,9 @@ function getSessionTitle (sessionId) {
  */
 function showShareModal (content, type = 'message') {
   if (!shareModal || !shareOptions) return
-  
+
   shareOptions.innerHTML = ''
-  
+
   // 分享为文本
   const textOption = document.createElement('div')
   textOption.className = 'share-option'
@@ -1629,7 +1656,7 @@ function showShareModal (content, type = 'message') {
     shareModal.classList.remove('show')
     showToast('已复制到剪贴板')
   })
-  
+
   // 分享为Markdown
   const markdownOption = document.createElement('div')
   markdownOption.className = 'share-option'
@@ -1643,7 +1670,7 @@ function showShareModal (content, type = 'message') {
     shareModal.classList.remove('show')
     showToast('已复制为Markdown格式')
   })
-  
+
   // 分享为图片（使用canvas生成）
   const imageOption = document.createElement('div')
   imageOption.className = 'share-option'
@@ -1655,11 +1682,11 @@ function showShareModal (content, type = 'message') {
     shareAsImage(content)
     shareModal.classList.remove('show')
   })
-  
+
   shareOptions.appendChild(textOption)
   shareOptions.appendChild(markdownOption)
   shareOptions.appendChild(imageOption)
-  
+
   shareModal.classList.add('show')
 }
 
@@ -1671,35 +1698,35 @@ function shareAsImage (content) {
   // 创建一个临时canvas来生成图片
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
-  
+
   // 设置canvas尺寸
   canvas.width = 800
   canvas.height = 600
-  
+
   // 设置背景色
   ctx.fillStyle = '#ffffff'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
-  
+
   // 设置文字样式
   ctx.fillStyle = '#333333'
   ctx.font = '20px Arial'
   ctx.textAlign = 'left'
   ctx.textBaseline = 'top'
-  
+
   // 绘制文字（简单换行）
   const lines = content.match(/.{1,60}/g) || [content]
   const lineHeight = 30
   const padding = 40
   let y = padding
-  
+
   lines.forEach((line, index) => {
     if (y + lineHeight > canvas.height - padding) return
     ctx.fillText(line, padding, y)
     y += lineHeight
   })
-  
+
   // 转换为图片并下载
-  canvas.toBlob((blob) => {
+  canvas.toBlob(blob => {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -1720,46 +1747,48 @@ function shareAsImage (content) {
 function initNewFeatures () {
   // 加载收藏列表
   loadFavorites()
-  
+
   // 初始化侧边栏标签页
   initSidebarTabs()
-  
+
   // 初始化分享模态框
   if (shareModalClose) {
     shareModalClose.addEventListener('click', () => {
       shareModal.classList.remove('show')
     })
-    
-    shareModal.addEventListener('click', (e) => {
+
+    shareModal.addEventListener('click', e => {
       if (e.target === shareModal) {
         shareModal.classList.remove('show')
       }
     })
   }
-  
+
   // PC端：鼠标悬停时显示按钮，并确保可以点击
   if (chatMessages) {
     // 使用鼠标移动事件来跟踪鼠标位置，确保按钮区域也能保持显示
     let hideTimer = null
-    
-    chatMessages.addEventListener('mousemove', (e) => {
+
+    chatMessages.addEventListener('mousemove', e => {
       if (window.innerWidth > 768) {
         const message = e.target.closest('.user-message')
         const actions = e.target.closest('.message-actions')
-        
+
         // 清除隐藏定时器
         if (hideTimer) {
           clearTimeout(hideTimer)
           hideTimer = null
         }
-        
+
         if (message) {
           // 关闭其他消息的按钮
-          chatMessages.querySelectorAll('.user-message.show-actions').forEach(msg => {
-            if (msg !== message) {
-              msg.classList.remove('show-actions')
-            }
-          })
+          chatMessages
+            .querySelectorAll('.user-message.show-actions')
+            .forEach(msg => {
+              if (msg !== message) {
+                msg.classList.remove('show-actions')
+              }
+            })
           // 显示当前消息的按钮
           message.classList.add('show-actions')
         } else if (actions) {
@@ -1771,60 +1800,70 @@ function initNewFeatures () {
         }
       }
     })
-    
+
     // 鼠标离开整个聊天区域时，延迟隐藏按钮
-    chatMessages.addEventListener('mouseleave', (e) => {
+    chatMessages.addEventListener('mouseleave', e => {
       if (window.innerWidth > 768) {
         // 延迟隐藏，给鼠标移动到按钮的时间
         hideTimer = setTimeout(() => {
-          chatMessages.querySelectorAll('.user-message.show-actions').forEach(msg => {
-            msg.classList.remove('show-actions')
-          })
+          chatMessages
+            .querySelectorAll('.user-message.show-actions')
+            .forEach(msg => {
+              msg.classList.remove('show-actions')
+            })
         }, 300)
       }
     })
   }
-  
+
   // 移动端和PC端：点击用户消息显示/隐藏按钮
   if (chatMessages) {
-    chatMessages.addEventListener('click', (e) => {
+    chatMessages.addEventListener('click', e => {
       const message = e.target.closest('.user-message')
       if (message) {
         // 如果点击的是按钮，不切换显示状态
-        if (e.target.closest('.message-actions') || 
-            e.target.closest('.action-btn') ||
-            e.target.closest('.copy-button-wrapper')) {
+        if (
+          e.target.closest('.message-actions') ||
+          e.target.closest('.action-btn') ||
+          e.target.closest('.copy-button-wrapper')
+        ) {
           return
         }
-        
+
         // 移动端：切换显示状态
         if (window.innerWidth <= 768) {
           const isShowing = message.classList.contains('show-actions')
-          
+
           // 先关闭所有其他用户消息的按钮
-          chatMessages.querySelectorAll('.user-message.show-actions').forEach(msg => {
-            msg.classList.remove('show-actions')
-          })
-          
+          chatMessages
+            .querySelectorAll('.user-message.show-actions')
+            .forEach(msg => {
+              msg.classList.remove('show-actions')
+            })
+
           // 切换当前消息的显示状态
           if (!isShowing) {
             message.classList.add('show-actions')
           }
         } else {
           // PC端：点击后保持显示
-          chatMessages.querySelectorAll('.user-message.show-actions').forEach(msg => {
-            if (msg !== message) {
-              msg.classList.remove('show-actions')
-            }
-          })
+          chatMessages
+            .querySelectorAll('.user-message.show-actions')
+            .forEach(msg => {
+              if (msg !== message) {
+                msg.classList.remove('show-actions')
+              }
+            })
           message.classList.add('show-actions')
         }
       } else {
         // 点击消息外部，关闭所有用户消息的按钮（仅在移动端）
         if (window.innerWidth <= 768) {
-          chatMessages.querySelectorAll('.user-message.show-actions').forEach(msg => {
-            msg.classList.remove('show-actions')
-          })
+          chatMessages
+            .querySelectorAll('.user-message.show-actions')
+            .forEach(msg => {
+              msg.classList.remove('show-actions')
+            })
         }
       }
     })
@@ -1836,16 +1875,16 @@ function initNewFeatures () {
  */
 function initSidebarTabs () {
   if (!sidebarTabs || sidebarTabs.length === 0) return
-  
+
   sidebarTabs.forEach(tab => {
     tab.addEventListener('click', () => {
       const tabName = tab.dataset.tab
       currentSidebarTab = tabName
-      
+
       // 更新标签页状态
       sidebarTabs.forEach(t => t.classList.remove('active'))
       tab.classList.add('active')
-      
+
       // 显示/隐藏对应内容
       if (tabName === 'sessions') {
         sessionsList.style.display = 'block'
@@ -1874,9 +1913,9 @@ function initSidebarTabs () {
  */
 function renderStatsPanel () {
   if (!statsPanel) return
-  
+
   const stats = calculateStats()
-  
+
   statsPanel.innerHTML = `
     <div class="stats-section">
       <div class="stats-title">总体统计</div>
@@ -1920,20 +1959,22 @@ function calculateStats () {
   let totalWords = 0
   let totalSessions = sessions.length
   let totalFavorites = favorites.length
-  
+
   sessions.forEach(session => {
     totalMessages += session.messages.length
     session.messages.forEach(msg => {
       totalWords += (msg.content || '').length
     })
   })
-  
+
   // 计算平均消息数
-  const avgMessages = totalSessions > 0 ? Math.round(totalMessages / totalSessions) : 0
-  
+  const avgMessages =
+    totalSessions > 0 ? Math.round(totalMessages / totalSessions) : 0
+
   // 计算平均字数
-  const avgWords = totalMessages > 0 ? Math.round(totalWords / totalMessages) : 0
-  
+  const avgWords =
+    totalMessages > 0 ? Math.round(totalWords / totalMessages) : 0
+
   return {
     totalMessages,
     totalWords,
