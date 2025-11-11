@@ -2,7 +2,7 @@
 import { API_CONFIG, APP_CONFIG, MODEL_LIST, getApiKey } from './config.js'
 import { callAIAPIStream } from './apiHandler.js'
 import { formatTime, showToast, copyToClipboard } from './utils.js'
-import { markdownToHtml } from './markdown.js'
+import { markdownToHtml, highlightCodeBlocks } from './markdown.js'
 import { createMessageElement, appendMessagesBatch } from './messageHandler.js'
 
 // 获取DOM元素
@@ -375,6 +375,11 @@ function renderActiveSessionMessages () {
 
     // 绑定按钮功能
     bindMessageActions(msgDiv, activeSessionId, i, msg.content)
+    
+    // 高亮代码块
+    if (!isUser) {
+      highlightCodeBlocks(msgDiv)
+    }
   }
 
   // 更新欢迎区域显示状态
@@ -731,6 +736,9 @@ function sendMessage (messageText, isUser = true) {
         messageTextDiv.classList.remove('streaming')
         messageTextDiv.innerHTML = markdownToHtml(fullContent)
         aiMessageDiv.removeAttribute('id')
+        
+        // 高亮代码块
+        highlightCodeBlocks(aiMessageDiv)
 
         // 按钮已在messageHandler.js中创建，这里需要绑定功能
         if (fullContent) {

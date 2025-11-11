@@ -2153,6 +2153,132 @@ body.dark-theme .dropdown-item.delete:hover {
   font-size: 13px;
 }
 
+/* 代码块包装器样式 */
+.code-block-wrapper {
+  position: relative;
+  margin: 12px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f6f8fa;
+  border: 1px solid #e1e4e8;
+}
+
+.dark-theme .code-block-wrapper {
+  background: #161b22;
+  border-color: #30363d;
+}
+
+/* 代码块头部（语言标签和复制按钮） */
+.code-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid #e1e4e8;
+  font-size: 12px;
+}
+
+.dark-theme .code-block-header {
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom-color: #30363d;
+}
+
+.code-language {
+  color: #586069;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.dark-theme .code-language {
+  color: #8b949e;
+}
+
+/* 复制按钮样式 */
+.code-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #586069;
+  transition: all 0.2s ease;
+}
+
+.code-copy-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: #959da5;
+}
+
+.code-copy-btn.copied {
+  background: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+.code-copy-btn.copied .copy-text {
+  color: white;
+}
+
+.dark-theme .code-copy-btn {
+  border-color: #30363d;
+  color: #8b949e;
+}
+
+.dark-theme .code-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #484f58;
+}
+
+.code-copy-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.code-copy-btn .copy-text {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* 代码块内的 pre 和 code 样式调整 */
+.code-block-wrapper pre {
+  margin: 0;
+  padding: 12px;
+  background: transparent;
+  border-radius: 0;
+  overflow-x: auto;
+}
+
+.code-block-wrapper pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+/* Highlight.js 样式覆盖 */
+.code-block-wrapper .hljs {
+  background: transparent;
+  padding: 0;
+}
+
+/* 确保代码块在暗色主题下也有合适的背景 */
+.dark-theme .code-block-wrapper pre {
+  background: transparent;
+}
+
+.dark-theme .code-block-wrapper .hljs {
+  background: transparent;
+}
+
 .message-text.markdown-content .streaming-cursor {
   display: inline;
   animation: blink 1s infinite;
